@@ -86,6 +86,10 @@ class message_output_airnotifier extends message_output {
 
         foreach ($devicetokens as $devicetoken) {
 
+            if (!$devicetoken->enable) {
+                continue;
+            }
+
             // Sending the message to the device.
             $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/notification/';
             $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,

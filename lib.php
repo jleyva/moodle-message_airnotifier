@@ -125,10 +125,6 @@ class airnotifier_manager {
     public function request_accesskey() {
         global $CFG;
 
-        if (!$this->is_system_configured()) {
-            return false;
-        }
-
         // Sending the request access key request to Airnotifier.
         $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/accesskeys/';
         // We use an APP Key "none", it can be anything.
