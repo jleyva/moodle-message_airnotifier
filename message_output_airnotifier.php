@@ -1,5 +1,4 @@
 <?php
-
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -34,18 +33,19 @@ class message_output_airnotifier extends message_output {
      * @param stdClass $eventdata the event data submitted by the message sender plus $eventdata->savedmessageid
      * @return true if ok, false if error
      */
-    function send_message($eventdata) {
+    public function send_message($eventdata) {
         global $CFG;
 
         if (!empty($CFG->noemailever)) {
-            // hidden setting for development sites, set in config.php if needed
+            // Hidden setting for development sites, set in config.php if needed.
             debugging('$CFG->noemailever active, no airnotifier message sent.', DEBUG_MINIMAL);
             return true;
         }
 
-        // skip any messaging suspended and deleted users
-        if ($eventdata->userto->auth === 'nologin' or $eventdata->userto->suspended or
-                $eventdata->userto->deleted) {
+        // Skip any messaging suspended and deleted users.
+        if ($eventdata->userto->auth === 'nologin' or
+            $eventdata->userto->suspended or
+            $eventdata->userto->deleted) {
             return true;
         }
 
@@ -58,7 +58,7 @@ class message_output_airnotifier extends message_output {
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
         $maxmsgsize = 205 - strlen(json_encode($notificationdata));
         $message = $eventdata->smallmessage;
-        // If the message size is too big make it shorter
+        // If the message size is too big make it shorter.
         if (strlen($message) >= $maxmsgsize) {
 
             // Cut the message to the maximum possible size. -4 for the the ending 3 dots (...).
@@ -68,20 +68,20 @@ class message_output_airnotifier extends message_output {
             $encodedmsgsize = strlen(json_encode($message));
             if ($encodedmsgsize > $maxmsgsize) {
                 $totalescapedchar = $encodedmsgsize - strlen($message);
-                // Cut the message to the maximum possible size (taking the escaped character in account)
+                // Cut the message to the maximum possible size (taking the escaped character in account).
                 $message = substr($message, 0 , $maxmsgsize - 4 - $totalescapedchar);
             }
 
             $message = $message . '...';
         }
 
-        // We are sending to message to all devices
+        // We are sending to message to all devices.
         $airnotifiermanager = new airnotifier_manager();
-        $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifierappname, $eventdata->userto->id, true);
+        $devicetokens = $airnotifiermanager->get_user_devices($CFG->mobileappname, $eventdata->userto->id);
 
         foreach ($devicetokens as $devicetoken) {
 
-            // Sending the message to the device
+            // Sending the message to the device.
             $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/notification/';
             $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
                 'X-AN-APP-KEY: ' . $CFG->airnotifieraccesskey);
@@ -105,7 +105,7 @@ class message_output_airnotifier extends message_output {
      *
      * @param array $preferences An array of user preferences
      */
-    function config_form($preferences) {
+    public function config_form($preferences) {
         global $CFG, $OUTPUT, $USER, $PAGE;
 
         if (!$this->is_system_configured()) {
@@ -115,39 +115,27 @@ class message_output_airnotifier extends message_output {
             $PAGE->requires->css('/message/output/airnotifier/style.css');
 
             $airnotifiermanager = new airnotifier_manager();
-            $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifierappname, $USER->id);
+            $devicetokens = $airnotifiermanager->get_user_devices($CFG->mobileappname, $USER->id);
 
             if (!empty($devicetokens)) {
                 $output = '';
 
                 foreach ($devicetokens as $devicetoken) {
 
-                    if ($devicetoken->enable) {
-                        $hideshowiconname = 't/hide';
-                        $dimmed = '';
-                    } else {
-                        $hideshowiconname = 't/show';
-                        $dimmed = 'dimmed_text';
-                    }
-
-                    $hideshowicon = $OUTPUT->pix_icon($hideshowiconname, get_string('showhide', 'message_airnotifier'));
                     $deleteicon = $OUTPUT->pix_icon('t/delete', get_string('deletedevice', 'message_airnotifier'));
-                    $devicename = empty($devicetoken->devicename) ? get_string('unknowndevice', 'message_airnotifier') : s($devicetoken->devicename);
-                    $hideurl = new moodle_url('message/output/airnotifier/action.php',
-                                    array('hide' => !$devicetoken->enable, 'deviceid' => $devicetoken->id,
-                                        'sesskey' => sesskey()));
+                    $name = empty($devicetoken->name) ? get_string('unknowndevice', 'message_airnotifier') : s($devicetoken->name);
                     $deleteurl = new moodle_url('message/output/airnotifier/action.php',
                                     array('delete' => true, 'deviceid' => $devicetoken->id,
                                         'sesskey' => sesskey()));
 
-                    $output .= html_writer::start_tag('li', array('id' => $devicetoken->id, 'class' => 'airnotifierdevice ' . $dimmed)) . "\n";
-                    $output .= html_writer::label($devicename, 'deviceid-' . $devicetoken->id, array('class' => 'devicelabel ')) . ' ' .
-                            html_writer::link($hideurl, $hideshowicon, array('class' => 'hidedevice', 'alt' => 'show/hide')) . '' .
+                    $output .= html_writer::start_tag('li', array('id' => $devicetoken->id,
+                                                                    'class' => 'airnotifierdevice ')) . "\n";
+                    $output .= html_writer::label($name, 'deviceid-' . $devicetoken->id, array('class' => 'devicelabel ')) . ' ' .
                             html_writer::link($deleteurl, $deleteicon, array('class' => 'deletedevice', 'alt' => 'delete')) . "\n";
                     $output .= html_writer::end_tag('li') . "\n";
                 }
 
-                // Include the AJAX script to automatically trigger the action
+                // Include the AJAX script to automatically trigger the action.
                 $airnotifiermanager->include_device_ajax();
 
                 $output = html_writer::tag('ul', $output, array('id' => 'airnotifierdevices'));
@@ -164,7 +152,7 @@ class message_output_airnotifier extends message_output {
      * @param stdClass $form preferences form class
      * @param array $preferences preferences array
      */
-    function process_form($form, &$preferences) {
+    public function process_form($form, &$preferences) {
         if (isset($form->airnotifier_devicetoken) && !empty($form->airnotifier_devicetoken)) {
             $preferences['message_processor_airnotifier_devicetoken'] = $form->airnotifier_devicetoken;
         }
@@ -176,7 +164,7 @@ class message_output_airnotifier extends message_output {
      * @param array $preferences preferences array
      * @param int $userid the user id
      */
-    function load_data(&$preferences, $userid) {
+    public function load_data(&$preferences, $userid) {
         $preferences->airnotifier_devicetoken =
                 get_user_preferences('message_processor_airnotifier_devicetoken', '', $userid);
     }
@@ -185,11 +173,11 @@ class message_output_airnotifier extends message_output {
      * Tests whether the airnotifier settings have been configured
      * @return boolean true if airnotifier is configured
      */
-    function is_system_configured() {
+    public function is_system_configured() {
         global $CFG;
         return (!empty($CFG->airnotifierurl) && !empty($CFG->airnotifierport) &&
-                !empty($CFG->airnotifieraccesskey) && !empty($CFG->airnotifierdeviceaccesskey) &&
-                !empty($CFG->airnotifierappname));
+                !empty($CFG->airnotifieraccesskey)  && !empty($CFG->airnotifierappname) &&
+                !empty($CFG->mobileappname));
     }
 }
 
