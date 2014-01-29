@@ -49,7 +49,7 @@ if ($pageaction == 'DELETE') {
     $requestmethod = 'DELETE';
 }
 
-$device = $DB->get_record('airnotifier_user_devices', array('id' => $id), '*', MUST_EXIST);
+$device = $DB->get_record('user_devices', array('id' => $id), '*', MUST_EXIST);
 
 $airnotifiermanager = new airnotifier_manager();
 

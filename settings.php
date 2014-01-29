@@ -32,10 +32,17 @@ if ($ADMIN->fulltree) {
     $settings->add(new admin_setting_configtext('airnotifierport',
                     get_string('airnotifierport', 'message_airnotifier'),
                     get_string('configairnotifierport', 'message_airnotifier'), '80', PARAM_INT));
-    $settings->add(new admin_setting_configtext('mobileappname',
-                    get_string('mobileappname', 'message_airnotifier'),
-                    get_string('configmobileappname', 'message_airnotifier'), 'com.moodlemoodle.mobile', PARAM_TEXT));
+    $settings->add(new admin_setting_configtext('airnotifiermobileappname',
+                    get_string('airnotifiermobileappname', 'message_airnotifier'),
+                    get_string('configairnotifiermobileappname', 'message_airnotifier'), 'com.moodlemoodle.mobile', PARAM_TEXT));
     $settings->add(new admin_setting_configtext('airnotifierappname',
                     get_string('airnotifierappname', 'message_airnotifier'),
                     get_string('configairnotifierappname', 'message_airnotifier'), 'commoodlemoodlemobile', PARAM_TEXT));
+    $settings->add(new admin_setting_configtext('airnotifieraccesskey',
+                    get_string('airnotifieraccesskey', 'message_airnotifier'),
+                    get_string('configairnotifieraccesskey', 'message_airnotifier'), '', PARAM_ALPHANUMEXT));
+
+    $url = new moodle_url('/message/output/airnotifier/requestaccesskey.php');
+    $link = html_writer::link($url, get_string('requestaccesskey', 'message_airnotifier'));
+    $settings->add(new admin_setting_heading('requestaccesskey', '', $link));
 }

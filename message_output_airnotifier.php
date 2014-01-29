@@ -49,10 +49,15 @@ class message_output_airnotifier extends message_output {
             return true;
         }
 
+        // Site id, to map with Moodle Mobile stored sites.
+        $siteid = md5($CFG->wwwroot . $username);
+
         // Mandatory notification data that need to be sent in the payload. They have variable length.
         // We need to take them in consideration to calculate the maximum message size.
-        $notificationdata = array("urlparams" => $eventdata->urlparams, "id" => $eventdata->savedmessageid,
-            "type" => $eventdata->component . '_' . $eventdata->name, "userfrom" => fullname($eventdata->userfrom));
+        $notificationdata = array(
+            "site" => $siteid,
+            "type" => $eventdata->component . '_' . $eventdata->name,
+            "userfrom" => fullname($eventdata->userfrom));
 
         // Calculate the size of the message knowing Apple payload must be lower than 256 bytes.
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
@@ -77,7 +82,8 @@ class message_output_airnotifier extends message_output {
 
         // We are sending to message to all devices.
         $airnotifiermanager = new airnotifier_manager();
-        $devicetokens = $airnotifiermanager->get_user_devices($CFG->mobileappname, $eventdata->userto->id);
+        $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifiermobileappname, $eventdata->userto->id);
+        $username = $DB->get_field('user', 'username', array('id' => $eventdata->userto->id));
 
         foreach ($devicetokens as $devicetoken) {
 
@@ -87,12 +93,12 @@ class message_output_airnotifier extends message_output {
                 'X-AN-APP-KEY: ' . $CFG->airnotifieraccesskey);
             $curl = new curl;
             $curl->setHeader($header);
-            $params = array('alert' => $message,
+            $params = array(
+                'alert' => $message,
                 'date' => $eventdata->timecreated,
-                'urlparams' => json_encode($eventdata->urlparams),
+                'site' => $siteid,
                 'type' => $eventdata->component . '_' . $eventdata->name,
                 'userfrom' => fullname($eventdata->userfrom),
-                'id' => $eventdata->savedmessageid,
                 'token' => $devicetoken->devicenotificationtoken);
             $resp = $curl->post($serverurl, $params);
         }
@@ -115,7 +121,7 @@ class message_output_airnotifier extends message_output {
             $PAGE->requires->css('/message/output/airnotifier/style.css');
 
             $airnotifiermanager = new airnotifier_manager();
-            $devicetokens = $airnotifiermanager->get_user_devices($CFG->mobileappname, $USER->id);
+            $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifiermobileappname, $USER->id);
 
             if (!empty($devicetokens)) {
                 $output = '';
@@ -123,7 +129,7 @@ class message_output_airnotifier extends message_output {
                 foreach ($devicetokens as $devicetoken) {
 
                     $deleteicon = $OUTPUT->pix_icon('t/delete', get_string('deletedevice', 'message_airnotifier'));
-                    $name = empty($devicetoken->name) ? get_string('unknowndevice', 'message_airnotifier') : s($devicetoken->name);
+                    $name = "$devicetoken->name $devicetoken->model $devicetoken->platform $devicetoken->version";
                     $deleteurl = new moodle_url('message/output/airnotifier/action.php',
                                     array('delete' => true, 'deviceid' => $devicetoken->id,
                                         'sesskey' => sesskey()));
@@ -177,7 +183,7 @@ class message_output_airnotifier extends message_output {
         global $CFG;
         return (!empty($CFG->airnotifierurl) && !empty($CFG->airnotifierport) &&
                 !empty($CFG->airnotifieraccesskey)  && !empty($CFG->airnotifierappname) &&
-                !empty($CFG->mobileappname));
+                !empty($CFG->airnotifiermobileappname));
     }
 }
 
