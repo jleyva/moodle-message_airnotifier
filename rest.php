@@ -49,13 +49,18 @@ if ($pageaction == 'DELETE') {
     $requestmethod = 'DELETE';
 }
 
-$device = $DB->get_record('user_devices', array('id' => $id), '*', MUST_EXIST);
+$device = $DB->get_record('message_airnotifier_devices', array('id' => $id), '*', MUST_EXIST);
 
 $airnotifiermanager = new airnotifier_manager();
 
 switch($requestmethod) {
-    case 'DELETE':
+    case 'POST':
+        switch ($field) {
+            case 'enable':
                 require_capability('message/airnotifier:managedevice', $usercontext);
-                $DB->delete_records('user_devices', array('id' => $id));
+                $device->enable = required_param('enable', PARAM_BOOL);
+                $DB->update_record('message_airnotifier_devices', $device);
                 break;
+        }
+        break;
 }

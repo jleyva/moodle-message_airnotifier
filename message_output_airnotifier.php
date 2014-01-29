@@ -34,7 +34,7 @@ class message_output_airnotifier extends message_output {
      * @return true if ok, false if error
      */
     public function send_message($eventdata) {
-        global $CFG;
+        global $CFG, $DB;
 
         if (!empty($CFG->noemailever)) {
             // Hidden setting for development sites, set in config.php if needed.
@@ -50,7 +50,7 @@ class message_output_airnotifier extends message_output {
         }
 
         // Site id, to map with Moodle Mobile stored sites.
-        $siteid = md5($CFG->wwwroot . $username);
+        $siteid = md5($CFG->wwwroot . $eventdata->userto->username);
 
         // Mandatory notification data that need to be sent in the payload. They have variable length.
         // We need to take them in consideration to calculate the maximum message size.
@@ -83,7 +83,6 @@ class message_output_airnotifier extends message_output {
         // We are sending to message to all devices.
         $airnotifiermanager = new airnotifier_manager();
         $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifiermobileappname, $eventdata->userto->id);
-        $username = $DB->get_field('user', 'username', array('id' => $eventdata->userto->id));
 
         foreach ($devicetokens as $devicetoken) {
 
@@ -94,12 +93,12 @@ class message_output_airnotifier extends message_output {
             $curl = new curl;
             $curl->setHeader($header);
             $params = array(
-                'alert' => $message,
-                'date' => $eventdata->timecreated,
-                'site' => $siteid,
-                'type' => $eventdata->component . '_' . $eventdata->name,
-                'userfrom' => fullname($eventdata->userfrom),
-                'token' => $devicetoken->devicenotificationtoken);
+                'alert'     => $message,
+                'date'      => $eventdata->timecreated,
+                'site'      => $siteid,
+                'type'      => $eventdata->component . '_' . $eventdata->name,
+                'userfrom'  => fullname($eventdata->userfrom),
+                'token'     => $devicetoken->pushid);
             $resp = $curl->post($serverurl, $params);
         }
 
@@ -128,16 +127,24 @@ class message_output_airnotifier extends message_output {
 
                 foreach ($devicetokens as $devicetoken) {
 
-                    $deleteicon = $OUTPUT->pix_icon('t/delete', get_string('deletedevice', 'message_airnotifier'));
+                    if ($devicetoken->enable) {
+                        $hideshowiconname = 't/hide';
+                        $dimmed = '';
+                    } else {
+                        $hideshowiconname = 't/show';
+                        $dimmed = 'dimmed_text';
+                    }
+
+                    $hideshowicon = $OUTPUT->pix_icon($hideshowiconname, get_string('showhide', 'message_airnotifier'));
                     $name = "$devicetoken->name $devicetoken->model $devicetoken->platform $devicetoken->version";
-                    $deleteurl = new moodle_url('message/output/airnotifier/action.php',
-                                    array('delete' => true, 'deviceid' => $devicetoken->id,
+                    $hideurl = new moodle_url('message/output/airnotifier/action.php',
+                                    array('hide' => !$devicetoken->enable, 'deviceid' => $devicetoken->id,
                                         'sesskey' => sesskey()));
 
                     $output .= html_writer::start_tag('li', array('id' => $devicetoken->id,
                                                                     'class' => 'airnotifierdevice ')) . "\n";
                     $output .= html_writer::label($name, 'deviceid-' . $devicetoken->id, array('class' => 'devicelabel ')) . ' ' .
-                            html_writer::link($deleteurl, $deleteicon, array('class' => 'deletedevice', 'alt' => 'delete')) . "\n";
+                            html_writer::link($hideurl, $hideshowicon, array('class' => 'hidedevice', 'alt' => 'show/hide')) . "\n";
                     $output .= html_writer::end_tag('li') . "\n";
                 }
 
@@ -180,10 +187,8 @@ class message_output_airnotifier extends message_output {
      * @return boolean true if airnotifier is configured
      */
     public function is_system_configured() {
-        global $CFG;
-        return (!empty($CFG->airnotifierurl) && !empty($CFG->airnotifierport) &&
-                !empty($CFG->airnotifieraccesskey)  && !empty($CFG->airnotifierappname) &&
-                !empty($CFG->airnotifiermobileappname));
+        $airnotifiermanager = new airnotifier_manager();
+        return $airnotifiermanager->is_system_configured();
     }
 }
 
