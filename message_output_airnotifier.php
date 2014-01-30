@@ -170,9 +170,7 @@ class message_output_airnotifier extends message_output {
      * @param array $preferences preferences array
      */
     public function process_form($form, &$preferences) {
-        if (isset($form->airnotifier_devicetoken) && !empty($form->airnotifier_devicetoken)) {
-            $preferences['message_processor_airnotifier_devicetoken'] = $form->airnotifier_devicetoken;
-        }
+        return true;
     }
 
     /**
@@ -182,8 +180,7 @@ class message_output_airnotifier extends message_output {
      * @param int $userid the user id
      */
     public function load_data(&$preferences, $userid) {
-        $preferences->airnotifier_devicetoken =
-                get_user_preferences('message_processor_airnotifier_devicetoken', '', $userid);
+        return true;
     }
 
     /**

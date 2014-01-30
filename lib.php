@@ -169,7 +169,7 @@ class airnotifier_manager {
 
         if ($resp = json_decode($resp, true)) {
             if (!empty($resp['status'])) {
-                return $resp['status'] == "ok";
+                return $resp['status'] == 'ok' || $resp['status'] == 'token exists';
             }
         }
         return false;
