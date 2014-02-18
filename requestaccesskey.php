@@ -23,7 +23,6 @@
  */
 
 require('../../../config.php');
-require_once($CFG->dirroot . '/message/output/airnotifier/lib.php');
 require_once($CFG->dirroot . '/' . $CFG->admin . '/registration/lib.php');
 
 global $PAGE, $OUTPUT;
@@ -62,7 +61,7 @@ if (strpos($CFG->airnotifierurl, AIRNOTIFIER_PUBLICURL) !== false ) {
     }
 }
 
-$manager = new airnotifier_manager();
+$manager = new message_airnotifier_manager();
 
 if ($key = $manager->request_accesskey()) {
     set_config('airnotifieraccesskey', $key);

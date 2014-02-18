@@ -26,7 +26,6 @@ if (!defined('AJAX_SCRIPT')) {
     define('AJAX_SCRIPT', true);
 }
 require_once(dirname(__FILE__) . '/../../../config.php');
-require_once($CFG->dirroot.'/message/output/airnotifier/lib.php');
 
 // Initialise ALL the incoming parameters here, up front.
 $field      = optional_param('field', '', PARAM_ALPHA);
@@ -51,7 +50,7 @@ if ($pageaction == 'DELETE') {
 
 $device = $DB->get_record('message_airnotifier_devices', array('id' => $id), '*', MUST_EXIST);
 
-$airnotifiermanager = new airnotifier_manager();
+$airnotifiermanager = new message_airnotifier_manager();
 
 switch($requestmethod) {
     case 'POST':

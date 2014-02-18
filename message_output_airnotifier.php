@@ -15,7 +15,6 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 require_once($CFG->dirroot . '/message/output/lib.php');
-require_once($CFG->dirroot . '/message/output/airnotifier/lib.php');
 
 /**
  * Airnotifier message processor to send messages to the APNS provider: airnotfier.
@@ -81,7 +80,7 @@ class message_output_airnotifier extends message_output {
         }
 
         // We are sending to message to all devices.
-        $airnotifiermanager = new airnotifier_manager();
+        $airnotifiermanager = new message_airnotifier_manager();
         $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifiermobileappname, $eventdata->userto->id);
 
         foreach ($devicetokens as $devicetoken) {
@@ -123,7 +122,7 @@ class message_output_airnotifier extends message_output {
 
             $PAGE->requires->css('/message/output/airnotifier/style.css');
 
-            $airnotifiermanager = new airnotifier_manager();
+            $airnotifiermanager = new message_airnotifier_manager();
             $devicetokens = $airnotifiermanager->get_user_devices($CFG->airnotifiermobileappname, $USER->id);
 
             if (!empty($devicetokens)) {
@@ -188,7 +187,7 @@ class message_output_airnotifier extends message_output {
      * @return boolean true if airnotifier is configured
      */
     public function is_system_configured() {
-        $airnotifiermanager = new airnotifier_manager();
+        $airnotifiermanager = new message_airnotifier_manager();
         return $airnotifiermanager->is_system_configured();
     }
 }

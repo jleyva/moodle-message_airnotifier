@@ -15,23 +15,20 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Airnotifier related functions
+ * Airnotifier manager class
  *
  * @package    message_airnotifier
  * @category   external
  * @copyright  2012 Jerome Mouneyrac <jerome@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since Moodle 2.4
+ * @since Moodle 2.7
  */
 
-require_once($CFG->libdir . '/filelib.php');
 
 /**
- * The official Moodle Airnotifier public instance
+ * Airnotifier helper manager class
  */
-define('AIRNOTIFIER_PUBLICURL', 'http://messages.moodle.net');
-
-class airnotifier_manager {
+class message_airnotifier_manager {
 
     /**
      * Include the relevant javascript and language strings for the device
@@ -125,6 +122,8 @@ class airnotifier_manager {
     public function request_accesskey() {
         global $CFG, $USER;
 
+        require_once($CFG->libdir . '/filelib.php');
+
         // Sending the request access key request to Airnotifier.
         $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/accesskeys/';
         // We use an APP Key "none", it can be anything.
@@ -161,6 +160,8 @@ class airnotifier_manager {
         if (!$this->is_system_configured()) {
             return false;
         }
+
+        require_once($CFG->libdir . '/filelib.php');
 
         $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/tokens/' . $token;
         $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
