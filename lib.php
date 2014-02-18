@@ -123,7 +123,7 @@ class airnotifier_manager {
      * @return mixed The access key or false in case of error
      */
     public function request_accesskey() {
-        global $CFG;
+        global $CFG, $USER;
 
         // Sending the request access key request to Airnotifier.
         $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/accesskeys/';
@@ -136,7 +136,10 @@ class airnotifier_manager {
         // Site ids are stored as secrets in md5 in the Moodle public hub.
         $params = array(
             'url' => $CFG->wwwroot,
-            'siteid' => md5($CFG->siteidentifier));
+            'siteid' => md5($CFG->siteidentifier),
+            'contact' => $USER->email,
+            'description' => $CFG->wwwroot
+            );
         $resp = $curl->post($serverurl, $params);
 
         if ($key = json_decode($resp, true)) {

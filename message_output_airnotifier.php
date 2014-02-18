@@ -146,7 +146,7 @@ class message_output_airnotifier extends message_output {
                                         'sesskey' => sesskey()));
 
                     $output .= html_writer::start_tag('li', array('id' => $devicetoken->id,
-                                                                    'class' => 'airnotifierdevice ')) . "\n";
+                                                                    'class' => 'airnotifierdevice ' . $dimmed)) . "\n";
                     $output .= html_writer::label($name, 'deviceid-' . $devicetoken->id, array('class' => 'devicelabel ')) . ' ' .
                             html_writer::link($hideurl, $hideshowicon, array('class' => 'hidedevice', 'alt' => 'show/hide')) . "\n";
                     $output .= html_writer::end_tag('li') . "\n";
