@@ -18,7 +18,7 @@
  * Request access key to AirNotifier
  *
  * @package    message_airnotifier
- * @copyright  2012 Jerome Mouneyrac
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

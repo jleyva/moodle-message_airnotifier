@@ -18,7 +18,7 @@
  * Strings for component 'message_airnotifier', language 'en'
  *
  * @package    message_airnotifier
- * @copyright  2012 Jerome mouneyrac
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 

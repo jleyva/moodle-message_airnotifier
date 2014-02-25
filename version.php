@@ -18,11 +18,11 @@
  * Airnotifier message processor version information
  *
  * @package    message_airnotifier
- * @copyright  2012 Jerome Mouneyrac
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version    = 2014012801;           // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version    = 2014012800;           // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires   = 2013111800;             // Requires this Moodle version.
 $plugin->component  = 'message_airnotifier';  // Full name of the plugin (used for diagnostics).
