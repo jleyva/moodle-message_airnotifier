@@ -18,7 +18,7 @@
  * Airnotifier message processor version information
  *
  * @package    message_airnotifier
- * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva
+ * @copyright  2012 Jerome Mouneyrac
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 defined('MOODLE_INTERNAL') || die();

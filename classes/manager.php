@@ -19,7 +19,7 @@
  *
  * @package    message_airnotifier
  * @category   external
- * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva <jerome@moodle.com>
+ * @copyright  2012 Jerome Mouneyrac <jerome@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @since Moodle 2.7
  */
@@ -28,7 +28,7 @@
 /**
  * Airnotifier helper manager class
  *
- * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva <jerome@moodle.com>
+ * @copyright  2012 Jerome Mouneyrac <jerome@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class message_airnotifier_manager {
