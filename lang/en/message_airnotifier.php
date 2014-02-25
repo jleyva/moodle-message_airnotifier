@@ -18,7 +18,7 @@
  * Strings for component 'message_airnotifier', language 'en'
  *
  * @package    message_airnotifier
- * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva
+ * @copyright  2012 Jerome mouneyrac
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -33,14 +33,14 @@ $string['configairnotifieraccesskey'] = 'The access key to use when connecting t
 $string['configairnotifierappname'] = 'The app name identifier in Airnotifier.';
 $string['configairnotifiermobileappname'] = 'The Mobile app unique identifier (usually something like com.moodle.moodlemobile).';
 $string['deletecheckdevicename'] = 'Delete your device: {$a->name}';
-$string['deletedevice'] = 'Delete the device. Note that it will not forbid an app to register it again. If the device keep reappearing, disable it.';
+$string['deletedevice'] = 'Delete the device. Note that an app can register the device again. If the device keeps reappearing, disable it.';
 $string['devicetoken'] = 'Device token';
-$string['errorretrievingkey'] = 'Error retrieving key, please verify that your Moodle site is registered in Moodle.org or update your registration details';
+$string['errorretrievingkey'] = 'An error occurred while retrieving key. Your Moodle site must be registered with Moodle.org to use this service. You may need to re-register to update your details there.';
 $string['keyretrievedsuccessfully'] = 'Key retrieved successfully';
-$string['nodevices'] = 'No registered devices. Devices are automatically registered when you allow a Moodle iOS app to receive push notifications.';
+$string['nodevices'] = 'No registered devices. Devices will automatically register after you allow a Moodle iOS app to receive push notifications.';
 $string['notconfigured'] = 'The Airnotifier server hasn\'t been configured so Airnotifier messages cannot be sent';
-$string['pluginname'] = 'PUSH Notifications (iPhone/iPad)';
-$string['sitemustberegistered'] = 'In order to use the public Airnotifier instance your site must be registered in Moodle.org';
+$string['pluginname'] = 'Mobile notifications';
+$string['sitemustberegistered'] = 'In order to use the public Airnotifier instance you must register your site with Moodle.org';
 $string['showhide'] = 'Enable/disable the device.';
 $string['requestaccesskey'] = 'Request access key';
 $string['unknowndevice'] = 'Unknown device';
