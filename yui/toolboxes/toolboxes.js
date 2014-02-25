@@ -81,7 +81,7 @@ YUI.add('moodle-message_airnotifier-toolboxes', function(Y) {
                 'src'   : M.util.image_url('t/' + status)
             });
             button.set('title', newstring);
-            button.set('className', 'editing_'+status);
+            button.set('className', 'editing_' + status);
 
             return value;
         },

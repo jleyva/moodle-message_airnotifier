@@ -15,7 +15,18 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * external API for airnotifier web services
+ * External functions
+ *
+ * @package    message_airnotifier
+ * @category   external
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva <jerome@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since Moodle 2.7
+ */
+
+
+/**
+ * External API for airnotifier web services
  *
  * @package    message_airnotifier
  * @category   external
@@ -73,6 +84,7 @@ class message_airnotifier_external extends external_api {
     /**
      * Check if the users have notification preferences configured for the airnotifier plugin
      *
+     * @param array $userids Array of user ids
      * @since Moodle 2.7
      */
     public static function are_notification_preferences_configured($userids) {
@@ -113,7 +125,7 @@ class message_airnotifier_external extends external_api {
                     foreach (array('loggedin', 'loggedoff') as $state) {
                         $prefname = 'message_provider_'.$provider->component.'_'.$provider->name.'_'.$state;
                         $linepref = get_user_preferences($prefname, '', $user->id);
-                        if ($linepref == ''){
+                        if ($linepref == '') {
                             continue;
                         }
                         $lineprefarray = explode(',', $linepref);

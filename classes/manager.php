@@ -27,6 +27,9 @@
 
 /**
  * Airnotifier helper manager class
+ *
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva <jerome@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class message_airnotifier_manager {
 
@@ -151,7 +154,7 @@ class message_airnotifier_manager {
 
     /**
      * Create a device token in the Airnotifier instance
-     *
+     * @param string $token The token to be created
      * @return bool True if all was right
      */
     private function create_token($token) {

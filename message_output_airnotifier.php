@@ -14,11 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+/**
+ * Airnotifier message processor to send messages to the APNS provider: airnotfier. (https://github.com/dongsheng/airnotifier)
+ *
+ * @package    message_airnotifier
+ * @category   external
+ * @copyright  2012/2014 Jerome Mouneyrac / Juan Leyva <jerome@moodle.com>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @since Moodle 2.7
+ */
+
+
 require_once($CFG->dirroot . '/message/output/lib.php');
 
 /**
- * Airnotifier message processor to send messages to the APNS provider: airnotfier.
- * (https://github.com/dongsheng/airnotifier)
+ * Message processor class
  *
  * @package   message_airnotifier
  * @copyright 2012 Jerome Mouneyrac
