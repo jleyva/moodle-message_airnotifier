@@ -25,6 +25,8 @@
 require('../../../config.php');
 require_once($CFG->dirroot . '/' . $CFG->admin . '/registration/lib.php');
 
+define('AIRNOTIFIER_PUBLICURL', 'http://messages.moodle.net');
+
 global $PAGE, $OUTPUT;
 
 $PAGE->set_url(new moodle_url('/mod/assign/feedback/editpdf/testgs.php'));
