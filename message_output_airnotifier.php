@@ -71,7 +71,7 @@ class message_output_airnotifier extends message_output {
         // Calculate the size of the message knowing Apple payload must be lower than 256 bytes.
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
         $maxmsgsize = 205 - strlen(json_encode($notificationdata));
-        $message = format_string($eventdata->smallmessage);
+        $message = s($eventdata->smallmessage);
         // If the message size is too big make it shorter.
         if (strlen($message) >= $maxmsgsize) {
 
