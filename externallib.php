@@ -106,14 +106,16 @@ class message_airnotifier_external extends external_api {
         $result = array();
         $hasuserupdatecap = has_capability('moodle/user:update', context_system::instance());
         foreach ($users as $user) {
-            if (!empty($user->deleted)) {
-                $result['warnings'][] = "User $user->id was deleted";
-                continue;
-            }
 
             $currentuser = ($user->id == $USER->id);
 
             if ($currentuser or $hasuserupdatecap) {
+
+                if (!empty($user->deleted)) {
+                    $result['warnings'][] = "User $user->id was deleted";
+                    continue;
+                }
+
                 $preferences = array();
                 $preferences['userid'] = $user->id;
                 $preferences['configured'] = 0;
