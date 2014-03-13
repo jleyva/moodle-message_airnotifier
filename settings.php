@@ -24,7 +24,6 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    // TODO: It will be better for these settings to be automatically retrieved by web service from moodle.org when enabling mobile.
     // The processor should be enabled by the same enable mobile setting.
     $settings->add(new admin_setting_configtext('airnotifierurl',
                     get_string('airnotifierurl', 'message_airnotifier'),

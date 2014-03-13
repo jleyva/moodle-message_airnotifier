@@ -28,38 +28,22 @@ if (!defined('AJAX_SCRIPT')) {
 require_once(dirname(__FILE__) . '/../../../config.php');
 
 // Initialise ALL the incoming parameters here, up front.
-$field      = optional_param('field', '', PARAM_ALPHA);
 $id         = required_param('id', PARAM_INT);
-$pageaction = optional_param('action', '', PARAM_ALPHA); // Used to simulate a DELETE command.
+$enable     = required_param('enable', PARAM_BOOL);
 
 $usercontext = context_user::instance($USER->id);
 
 $PAGE->set_url('/message/output/airnotifier/rest.php');
 $PAGE->set_context($usercontext);
+
 require_login();
 require_sesskey();
+require_capability('message/airnotifier:managedevice', $usercontext);
 
-echo $OUTPUT->header(); // Send headers.
-
-// OK, now let's process the parameters and do stuff.
-// MDL-10221 the DELETE method is not allowed on some web servers, so we simulate it with the action URL param.
-$requestmethod = $_SERVER['REQUEST_METHOD'];
-if ($pageaction == 'DELETE') {
-    $requestmethod = 'DELETE';
-}
+echo $OUTPUT->header();
 
 $device = $DB->get_record('message_airnotifier_devices', array('id' => $id), '*', MUST_EXIST);
 
-$airnotifiermanager = new message_airnotifier_manager();
+$device->enable = required_param('enable', PARAM_BOOL);
+$DB->update_record('message_airnotifier_devices', $device);
 
-switch($requestmethod) {
-    case 'POST':
-        switch ($field) {
-            case 'enable':
-                require_capability('message/airnotifier:managedevice', $usercontext);
-                $device->enable = required_param('enable', PARAM_BOOL);
-                $DB->update_record('message_airnotifier_devices', $device);
-                break;
-        }
-        break;
-}

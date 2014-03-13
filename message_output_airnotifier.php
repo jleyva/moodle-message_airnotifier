@@ -43,7 +43,7 @@ class message_output_airnotifier extends message_output {
      * @return true if ok, false if error
      */
     public function send_message($eventdata) {
-        global $CFG, $DB;
+        global $CFG;
 
         if (!empty($CFG->noemailever)) {
             // Hidden setting for development sites, set in config.php if needed.
@@ -149,7 +149,7 @@ class message_output_airnotifier extends message_output {
                     }
 
                     $hideshowicon = $OUTPUT->pix_icon($hideshowiconname, get_string('showhide', 'message_airnotifier'));
-                    $name = "$devicetoken->name $devicetoken->model $devicetoken->platform $devicetoken->version";
+                    $name = "{$devicetoken->name} {$devicetoken->model} {$devicetoken->platform} {$devicetoken->version}";
                     $hideurl = new moodle_url('message/output/airnotifier/action.php',
                                     array('hide' => !$devicetoken->enable, 'deviceid' => $devicetoken->id,
                                         'sesskey' => sesskey()));
@@ -157,7 +157,7 @@ class message_output_airnotifier extends message_output {
                     $output .= html_writer::start_tag('li', array('id' => $devicetoken->id,
                                                                     'class' => 'airnotifierdevice ' . $dimmed)) . "\n";
                     $output .= html_writer::label($name, 'deviceid-' . $devicetoken->id, array('class' => 'devicelabel ')) . ' ' .
-                            html_writer::link($hideurl, $hideshowicon, array('class' => 'hidedevice', 'alt' => 'show/hide')) . "\n";
+                        html_writer::link($hideurl, $hideshowicon, array('class' => 'hidedevice', 'alt' => 'show/hide')) . "\n";
                     $output .= html_writer::end_tag('li') . "\n";
                 }
 
