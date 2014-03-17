@@ -165,7 +165,7 @@ class message_airnotifier_external extends external_api {
                     new external_single_structure(
                         array (
                             'userid'     => new external_value(PARAM_INT, 'userid id'),
-                            'configured' => new external_value(PARAM_INT, 'preferences configured 0 for not , 1 for yes')
+                            'configured' => new external_value(PARAM_INT, '1 is the user preferences have been configured and 0 if not')
                         )
                     ),
                     'list of preferences by user'),

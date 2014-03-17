@@ -27,8 +27,6 @@ require_once($CFG->dirroot . '/' . $CFG->admin . '/registration/lib.php');
 
 define('AIRNOTIFIER_PUBLICURL', 'http://messages.moodle.net');
 
-global $PAGE, $OUTPUT;
-
 $PAGE->set_url(new moodle_url('/message/output/airnotifier/requestaccesskey.php'));
 $PAGE->set_context(context_system::instance());
 
@@ -57,7 +55,7 @@ if (strpos($CFG->airnotifierurl, AIRNOTIFIER_PUBLICURL) !== false ) {
         $msg .= $OUTPUT->continue_button($returl);
 
         echo $OUTPUT->header();
-        echo $OUTPUT->box($msg, 'generalbox ');
+        echo $OUTPUT->box($msg, 'generalbox');
         echo $OUTPUT->footer();
         die;
     }

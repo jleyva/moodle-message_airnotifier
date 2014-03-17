@@ -22,22 +22,23 @@
  * @package message_airnotifier
  */
 
-if (!defined('AJAX_SCRIPT')) {
-    define('AJAX_SCRIPT', true);
-}
+
+define('AJAX_SCRIPT', true);
+
 require_once(dirname(__FILE__) . '/../../../config.php');
 
 // Initialise ALL the incoming parameters here, up front.
 $id         = required_param('id', PARAM_INT);
 $enable     = required_param('enable', PARAM_BOOL);
 
+require_login();
+require_sesskey();
+
 $usercontext = context_user::instance($USER->id);
 
 $PAGE->set_url('/message/output/airnotifier/rest.php');
 $PAGE->set_context($usercontext);
 
-require_login();
-require_sesskey();
 require_capability('message/airnotifier:managedevice', $usercontext);
 
 echo $OUTPUT->header();
