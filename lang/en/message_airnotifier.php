@@ -44,3 +44,4 @@ $string['sitemustberegistered'] = 'In order to use the public Airnotifier instan
 $string['showhide'] = 'Enable/disable the device.';
 $string['requestaccesskey'] = 'Request access key';
 $string['unknowndevice'] = 'Unknown device';
+$string['airnotifier:managedevice'] = 'Mange device';
