@@ -43,10 +43,6 @@ class message_airnotifier_manager {
     public function include_device_ajax() {
         global $PAGE, $CFG;
 
-        if (!$CFG->enableajax) {
-            return false;
-        }
-
         $config = new stdClass();
         $config->resturl = '/message/output/airnotifier/rest.php';
         $config->pageparams = array();
@@ -87,7 +83,7 @@ class message_airnotifier_manager {
         // We are going to allow only ios devices (since these are the ones that supports PUSH notifications).
         $userdevices = $DB->get_records('user_devices', $params);
         foreach ($userdevices as $device) {
-            if (core_text::strtolower($device->platform) === 'ios') {
+            if (core_text::strtolower($device->platform)) {
                 // Check if the device is known by airnotifier.
                 if (!$airnotifierdev = $DB->get_record('message_airnotifier_devices',
                         array('userdeviceid' => $device->id))) {

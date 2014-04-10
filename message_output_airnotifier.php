@@ -66,7 +66,10 @@ class message_output_airnotifier extends message_output {
         $notificationdata = array(
             "site" => $siteid,
             "type" => $eventdata->component . '_' . $eventdata->name,
-            "userfrom" => fullname($eventdata->userfrom));
+            "device" => "xxxxxxxxxx",   // Since at this point we don't know the device, we use a 10 chars device platform.
+            "notif" => "x",             // 1 or 0 wheter is a notification or not (it may be a private message).
+            "userfrom" => (!empty($eventdata->userfrom)) ? fullname($eventdata->userfrom) : ''
+        );
 
         // Calculate the size of the message knowing Apple payload must be lower than 256 bytes.
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
@@ -107,10 +110,12 @@ class message_output_airnotifier extends message_output {
             $curl->setHeader($header);
             $params = array(
                 'alert'     => $message,
-                'date'      => $eventdata->timecreated,
+                'date'      => (!empty($eventdata->timecreated)) ? $eventdata->timecreated : time(),
                 'site'      => $siteid,
                 'type'      => $eventdata->component . '_' . $eventdata->name,
-                'userfrom'  => fullname($eventdata->userfrom),
+                'userfrom'  => (!empty($eventdata->userfrom)) ? fullname($eventdata->userfrom) : '',
+                'device'    => $devicetoken->platform,
+                'notif'     => (!empty($eventdata->notification)) ? '1' : '0',
                 'token'     => $devicetoken->pushid);
             $resp = $curl->post($serverurl, $params);
         }
@@ -125,6 +130,11 @@ class message_output_airnotifier extends message_output {
      */
     public function config_form($preferences) {
         global $CFG, $OUTPUT, $USER, $PAGE;
+
+        $systemcontext = context_system::instance();
+        if (!has_capability('message/airnotifier:managedevice', $systemcontext)) {
+            return get_string('nopermissiontomanagedevices', 'message_airnotifier');
+        }
 
         if (!$this->is_system_configured()) {
             return get_string('notconfigured', 'message_airnotifier');

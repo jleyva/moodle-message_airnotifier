@@ -24,6 +24,9 @@
  * @since Moodle 2.7
  */
 
+defined('MOODLE_INTERNAL') || die;
+
+require_once("$CFG->libdir/externallib.php");
 
 /**
  * External API for airnotifier web services
@@ -53,7 +56,15 @@ class message_airnotifier_external extends external_api {
      * @since Moodle 2.7
      */
     public static function is_system_configured() {
+        global $DB;
 
+        // First, check if the plugin is disabled.
+        $processor = $DB->get_record('message_processors', array('name' => 'airnotifier'), '*', MUST_EXIST);
+        if (!$processor->enabled) {
+            return 0;
+        }
+
+        // Then, check if the plugin is completly configured.
         $manager = new message_airnotifier_manager();
         return (int) $manager->is_system_configured();
     }
@@ -94,7 +105,7 @@ class message_airnotifier_external extends external_api {
         $params = self::validate_parameters(self::are_notification_preferences_configured_parameters(),
                 array('userids' => $userids));
 
-        list($sqluserids, $params) = $DB->get_in_or_equal($userids, SQL_PARAMS_NAMED);
+        list($sqluserids, $params) = $DB->get_in_or_equal($params['userids'], SQL_PARAMS_NAMED);
         $uselect = ', ' . context_helper::get_preload_record_columns_sql('ctx');
         $ujoin = "LEFT JOIN {context} ctx ON (ctx.instanceid = u.id AND ctx.contextlevel = :contextlevel)";
         $params['contextlevel'] = CONTEXT_USER;
@@ -103,7 +114,10 @@ class message_airnotifier_external extends external_api {
                      WHERE u.id $sqluserids";
         $users = $DB->get_recordset_sql($usersql, $params);
 
-        $result = array();
+        $result = array(
+            'users' => array(),
+            'warnings' => array()
+        );
         $hasuserupdatecap = has_capability('moodle/user:update', context_system::instance());
         foreach ($users as $user) {
 
@@ -112,7 +126,12 @@ class message_airnotifier_external extends external_api {
             if ($currentuser or $hasuserupdatecap) {
 
                 if (!empty($user->deleted)) {
-                    $result['warnings'][] = "User $user->id was deleted";
+                    $warning = array();
+                    $warning['item'] = 'user';
+                    $warning['itemid'] = $user->id;
+                    $warning['warningcode'] = '1';
+                    $warning['message'] = "User $user->id was deleted";
+                    $result['warnings'][] = $warning;
                     continue;
                 }
 
@@ -123,27 +142,45 @@ class message_airnotifier_external extends external_api {
                 // Now we get for all the providers and all the states
                 // the user preferences to check if at least one is enabled for airnotifier plugin.
                 $providers = message_get_providers_for_user($user->id);
-                foreach ($providers as $provider) {
-                    foreach (array('loggedin', 'loggedoff') as $state) {
-                        $prefname = 'message_provider_'.$provider->component.'_'.$provider->name.'_'.$state;
-                        $linepref = get_user_preferences($prefname, '', $user->id);
-                        if ($linepref == '') {
-                            continue;
-                        }
-                        $lineprefarray = explode(',', $linepref);
+                $configured = false;
 
-                        foreach ($lineprefarray as $pref) {
-                            if ($pref == 'airnotifier') {
-                                $preferences['configured'] = 1;
-                                break 2;
-                            }
+                foreach ($providers as $provider) {
+                    if ($configured) {
+                        break;
+                    }
+
+                    foreach (array('loggedin', 'loggedoff') as $state) {
+
+                        $prefstocheck = array();
+                        $prefname = 'message_provider_'.$provider->component.'_'.$provider->name.'_'.$state;
+
+                        // First get forced settings.
+                        if ($forcedpref = get_config('message', $prefname)) {
+                            $prefstocheck = explode(',', $forcedpref);
                         }
+
+                        // Then get user settings.
+                        if ($userpref = get_user_preferences($prefname, '', $user->id)) {
+                            $prefstocheck += explode(',', $userpref);
+                        }
+
+                        if (in_array('airnotifier', $prefstocheck)) {
+                            $preferences['configured'] = 1;
+                            $configured = true;
+                            break;
+                        }
+
                     }
                 }
 
                 $result['users'][] = $preferences;
             } else if (!$hasuserupdatecap) {
-                $result['warnings'][] = "You don't have permissions for view user $user->id preferences";
+                $warning = array();
+                $warning['item'] = 'user';
+                $warning['itemid'] = $user->id;
+                $warning['warningcode'] = '2';
+                $warning['message'] = "You don't have permissions for view user $user->id preferences";
+                $result['warnings'][] = $warning;
             }
 
         }
@@ -165,7 +202,8 @@ class message_airnotifier_external extends external_api {
                     new external_single_structure(
                         array (
                             'userid'     => new external_value(PARAM_INT, 'userid id'),
-                            'configured' => new external_value(PARAM_INT, '1 is the user preferences have been configured and 0 if not')
+                            'configured' => new external_value(PARAM_INT,
+                                '1 if the user preferences have been configured and 0 if not')
                         )
                     ),
                     'list of preferences by user'),
