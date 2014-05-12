@@ -83,13 +83,14 @@ class message_airnotifier_manager {
         // We are going to allow only ios devices (since these are the ones that supports PUSH notifications).
         $userdevices = $DB->get_records('user_devices', $params);
         foreach ($userdevices as $device) {
-            if (core_text::strtolower($device->platform)) {
+            $platform = core_text::strtolower($device->platform);
+            if ($platform) {
                 // Check if the device is known by airnotifier.
                 if (!$airnotifierdev = $DB->get_record('message_airnotifier_devices',
                         array('userdeviceid' => $device->id))) {
 
                     // We have to create the device token in airnotifier.
-                    if (! $this->create_token($device->pushid)) {
+                    if (! $this->create_token($device->pushid, $platform)) {
                         continue;
                     }
 
@@ -147,7 +148,7 @@ class message_airnotifier_manager {
      * @param string $token The token to be created
      * @return bool True if all was right
      */
-    private function create_token($token) {
+    private function create_token($token, $platform) {
         global $CFG;
 
         if (!$this->is_system_configured()) {
@@ -161,7 +162,7 @@ class message_airnotifier_manager {
             'X-AN-APP-KEY: ' . $CFG->airnotifieraccesskey);
         $curl = new curl;
         $curl->setHeader($header);
-        $params = array();
+        $params = array('device' => $platform);
         $resp = $curl->post($serverurl, $params);
 
         if ($resp = json_decode($resp, true)) {
