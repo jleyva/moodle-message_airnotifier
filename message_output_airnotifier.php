@@ -75,6 +75,8 @@ class message_output_airnotifier extends message_output {
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
         $maxmsgsize = 205 - core_text::strlen(json_encode($notificationdata));
         $message = s($eventdata->smallmessage);
+        // Delete new lines, the payload JSON format doesn't support it.
+        $message = trim(preg_replace('/\s+/', ' ', $message));
         // If the message size is too big make it shorter.
         if (core_text::strlen($message) >= $maxmsgsize) {
 
@@ -102,6 +104,9 @@ class message_output_airnotifier extends message_output {
                 continue;
             }
 
+            // Normalize platform name (allways in lower case).
+            $devicetoken->platform = core_text::strtolower($devicetoken->platform);
+
             // Sending the message to the device.
             $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/notification/';
             $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
@@ -117,6 +122,16 @@ class message_output_airnotifier extends message_output {
                 'device'    => $devicetoken->platform,
                 'notif'     => (!empty($eventdata->notification)) ? '1' : '0',
                 'token'     => $devicetoken->pushid);
+
+            // Extra parameters for Android.
+            if ($devicetoken->platform == "android") {
+                if (!empty($eventdata->notification)) {
+                    $params['title'] = get_string('newnotification', 'message_airnotifier');
+                } else {
+                    $params['title'] = get_string('newmessage', 'message_airnotifier');
+                }
+            }
+
             $resp = $curl->post($serverurl, $params);
         }
 
