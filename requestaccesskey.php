@@ -24,6 +24,7 @@
 
 require('../../../config.php');
 require_once($CFG->dirroot . '/' . $CFG->admin . '/registration/lib.php');
+require_once($CFG->dirroot . '/message/output/airnotifier/classes/manager.php');
 
 define('AIRNOTIFIER_PUBLICURL', 'https://messages.moodle.net');
 

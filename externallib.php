@@ -21,12 +21,13 @@
  * @category   external
  * @copyright  2012 Jerome Mouneyrac <jerome@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since Moodle 2.7
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 require_once("$CFG->libdir/externallib.php");
+require_once($CFG->dirroot . '/message/output/airnotifier/classes/manager.php');
+
 
 /**
  * External API for airnotifier web services
@@ -35,14 +36,12 @@ require_once("$CFG->libdir/externallib.php");
  * @category   external
  * @copyright  2012 Jerome Mouneyrac <jerome@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @since Moodle 2.7
  */
 class message_airnotifier_external extends external_api {
 
     /**
      * Returns description of method parameters
      *
-     * @since Moodle 2.7
      */
     public static function is_system_configured_parameters() {
         return new external_function_parameters(
@@ -53,7 +52,6 @@ class message_airnotifier_external extends external_api {
     /**
      * Tests whether the airnotifier settings have been configured
      *
-     * @since Moodle 2.7
      */
     public static function is_system_configured() {
         global $DB;
@@ -82,7 +80,6 @@ class message_airnotifier_external extends external_api {
     /**
      * Returns description of method parameters
      *
-     * @since Moodle 2.7
      */
     public static function are_notification_preferences_configured_parameters() {
         return new external_function_parameters(
@@ -96,7 +93,6 @@ class message_airnotifier_external extends external_api {
      * Check if the users have notification preferences configured for the airnotifier plugin
      *
      * @param array $userids Array of user ids
-     * @since Moodle 2.7
      */
     public static function are_notification_preferences_configured($userids) {
         global $CFG, $USER, $DB;
@@ -193,7 +189,6 @@ class message_airnotifier_external extends external_api {
      * Returns description of method result value
      *
      * @return external_single_structure
-     * @since Moodle 2.7
      */
     public static function are_notification_preferences_configured_returns() {
         return new external_single_structure(

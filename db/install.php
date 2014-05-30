@@ -39,18 +39,25 @@ function xmldb_message_airnotifier_install() {
     // TODO: Remove this when this plugin launch in core.
     require_once($CFG->dirroot . '/webservice/lib.php');
     $webservicemanager = new webservice();
-    $mobileservice = $webservicemanager->get_external_service_by_shortname(MOODLE_OFFICIAL_MOBILE_SERVICE);
 
-    if (!$webservicemanager->service_function_exists("message_airnotifier_is_system_configured",
-                                                        $mobileservice->id)) {
-        $webservicemanager->add_external_function_to_service("message_airnotifier_is_system_configured",
-                                                                $mobileservice->id);
-    }
+    $services = array(MOODLE_OFFICIAL_MOBILE_SERVICE, 'local_mobile');
 
-    if (!$webservicemanager->service_function_exists("message_airnotifier_are_notification_preferences_configured",
-                                                        $mobileservice->id)) {
-        $webservicemanager->add_external_function_to_service("message_airnotifier_are_notification_preferences_configured",
-                                                        $mobileservice->id);
+    foreach ($services as $service) {
+        if (!$mobileservice = $webservicemanager->get_external_service_by_shortname($service)) {
+            continue;
+        }
+
+        if (!$webservicemanager->service_function_exists("message_airnotifier_is_system_configured",
+                                                            $mobileservice->id)) {
+            $webservicemanager->add_external_function_to_service("message_airnotifier_is_system_configured",
+                                                                    $mobileservice->id);
+        }
+
+        if (!$webservicemanager->service_function_exists("message_airnotifier_are_notification_preferences_configured",
+                                                            $mobileservice->id)) {
+            $webservicemanager->add_external_function_to_service("message_airnotifier_are_notification_preferences_configured",
+                                                            $mobileservice->id);
+        }
     }
 
     return $result;

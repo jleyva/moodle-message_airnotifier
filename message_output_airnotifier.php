@@ -26,6 +26,7 @@
 
 
 require_once($CFG->dirroot . '/message/output/lib.php');
+require_once($CFG->dirroot . '/message/output/airnotifier/classes/manager.php');
 
 /**
  * Message processor class
