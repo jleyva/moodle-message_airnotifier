@@ -29,5 +29,5 @@ $plugin->release    = '2.4.0';
 $plugin->component  = 'message_airnotifier';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity   = MATURITY_STABLE;
 $plugin->dependencies = array(
-    'local_mobile' => ANY_VERSION
+    'local_mobile' => 2014052800
 );
