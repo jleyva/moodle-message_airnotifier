@@ -74,22 +74,22 @@ class message_output_airnotifier extends message_output {
 
         // Calculate the size of the message knowing Apple payload must be lower than 256 bytes.
         // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
-        $maxmsgsize = 205 - core_text::strlen(json_encode($notificationdata));
+        $maxmsgsize = 205 - textlib::strlen(json_encode($notificationdata));
         $message = s($eventdata->smallmessage);
         // Delete new lines, the payload JSON format doesn't support it.
         $message = trim(preg_replace('/\s+/', ' ', $message));
         // If the message size is too big make it shorter.
-        if (core_text::strlen($message) >= $maxmsgsize) {
+        if (textlib::strlen($message) >= $maxmsgsize) {
 
             // Cut the message to the maximum possible size. -4 for the the ending 3 dots (...).
-            $message = core_text::substr($message, 0 , $maxmsgsize - 4);
+            $message = textlib::substr($message, 0 , $maxmsgsize - 4);
 
             // We need to check when the message is "escaped" then the message is not too long.
-            $encodedmsgsize = core_text::strlen(json_encode($message));
+            $encodedmsgsize = textlib::strlen(json_encode($message));
             if ($encodedmsgsize > $maxmsgsize) {
-                $totalescapedchar = $encodedmsgsize - core_text::strlen($message);
+                $totalescapedchar = $encodedmsgsize - textlib::strlen($message);
                 // Cut the message to the maximum possible size (taking the escaped character in account).
-                $message = core_text::substr($message, 0 , $maxmsgsize - 4 - $totalescapedchar);
+                $message = textlib::substr($message, 0 , $maxmsgsize - 4 - $totalescapedchar);
             }
 
             $message = $message . '...';
@@ -106,7 +106,7 @@ class message_output_airnotifier extends message_output {
             }
 
             // Normalize platform name (allways in lower case).
-            $devicetoken->platform = core_text::strtolower($devicetoken->platform);
+            $devicetoken->platform = textlib::strtolower($devicetoken->platform);
 
             // Sending the message to the device.
             $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/notification/';

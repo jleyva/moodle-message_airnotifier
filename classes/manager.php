@@ -83,7 +83,7 @@ class message_airnotifier_manager {
         // We are going to allow only ios devices (since these are the ones that supports PUSH notifications).
         $userdevices = $DB->get_records('local_mobile_user_devices', $params);
         foreach ($userdevices as $device) {
-            $platform = core_text::strtolower($device->platform);
+            $platform = textlib::strtolower($device->platform);
             if ($platform) {
                 // Check if the device is known by airnotifier.
                 if (!$airnotifierdev = $DB->get_record('message_airnotifier_devices',
