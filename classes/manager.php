@@ -119,7 +119,7 @@ class message_airnotifier_manager {
         require_once($CFG->libdir . '/filelib.php');
 
         // Sending the request access key request to Airnotifier.
-        $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/accesskeys/';
+        $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/api/v2/accesskeys/';
         // We use an APP Key "none", it can be anything.
         $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
             'X-AN-APP-KEY: none');
@@ -131,9 +131,12 @@ class message_airnotifier_manager {
             'url' => $CFG->wwwroot,
             'siteid' => md5($CFG->siteidentifier),
             'contact' => $USER->email,
-            'description' => $CFG->wwwroot
+            'description' => $CFG->wwwroot,
+            'processor' => 'moodle'
             );
-        $resp = $curl->post($serverurl, $params);
+
+        // JSON POST raw body request.
+        $resp = $curl->post($serverurl, json_encode($params));
 
         if ($key = json_decode($resp, true)) {
             if (!empty($key['accesskey'])) {
@@ -157,18 +160,25 @@ class message_airnotifier_manager {
 
         require_once($CFG->libdir . '/filelib.php');
 
-        $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/tokens/' . $token;
+        $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/api/v2/tokens/';
         $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
             'X-AN-APP-KEY: ' . $CFG->airnotifieraccesskey);
         $curl = new curl;
         $curl->setHeader($header);
-        $params = array('device' => $platform);
-        $resp = $curl->post($serverurl, $params);
 
-        if ($resp = json_decode($resp, true)) {
-            if (!empty($resp['status'])) {
-                return $resp['status'] == 'ok' || $resp['status'] == 'token exists';
-            }
+        $params = array(
+            'device' => $platform,
+            'token' => $token,
+            'processor' => 'moodle'
+        );
+
+        // JSON POST raw body request.
+        $resp = $curl->post($serverurl, json_encode($params));
+        $status = $curl->info;
+
+        // Check returned HTTP status code.
+        if (!empty($status) and $status['http_code'] == 200) {
+            return true;
         }
         return false;
     }

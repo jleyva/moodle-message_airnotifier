@@ -46,6 +46,7 @@ class message_output_airnotifier extends message_output {
      */
     public function send_message($eventdata) {
         global $CFG;
+        require_once($CFG->libdir . '/filelib.php');
 
         if (!empty($CFG->noemailever)) {
             // Hidden setting for development sites, set in config.php if needed.
@@ -63,38 +64,24 @@ class message_output_airnotifier extends message_output {
         // Site id, to map with Moodle Mobile stored sites.
         $siteid = md5($CFG->wwwroot . $eventdata->userto->username);
 
-        // Mandatory notification data that need to be sent in the payload. They have variable length.
-        // We need to take them in consideration to calculate the maximum message size.
-        $notificationdata = array(
-            "site" => $siteid,
-            "type" => $eventdata->component . '_' . $eventdata->name,
-            "device" => "xxxxxxxxxx",   // Since at this point we don't know the device, we use a 10 chars device platform.
-            "notif" => "x",             // 1 or 0 wheter is a notification or not (it may be a private message).
-            "userfrom" => (!empty($eventdata->userfrom)) ? fullname($eventdata->userfrom) : ''
-        );
+        // Airnotifier can handle custom requests using processors (that are Airnotifier plugins).
+        // In the extra parameter we indicate which processor to use and also additional data to be handled by the processor.
+        // Here we clone the eventdata object because will be deleting/adding attributes.
+        $extra = clone $eventdata;
 
-        // Calculate the size of the message knowing Apple payload must be lower than 256 bytes.
-        // Airnotifier using few bytes of the payload, we must limit our message to even less characters.
-        $maxmsgsize = 205 - textlib::strlen(json_encode($notificationdata));
-        $message = s($eventdata->smallmessage);
-        // Delete new lines, the payload JSON format doesn't support it.
-        $message = trim(preg_replace('/\s+/', ' ', $message));
-        // If the message size is too big make it shorter.
-        if (textlib::strlen($message) >= $maxmsgsize) {
-
-            // Cut the message to the maximum possible size. -4 for the the ending 3 dots (...).
-            $message = textlib::substr($message, 0 , $maxmsgsize - 4);
-
-            // We need to check when the message is "escaped" then the message is not too long.
-            $encodedmsgsize = textlib::strlen(json_encode($message));
-            if ($encodedmsgsize > $maxmsgsize) {
-                $totalescapedchar = $encodedmsgsize - textlib::strlen($message);
-                // Cut the message to the maximum possible size (taking the escaped character in account).
-                $message = textlib::substr($message, 0 , $maxmsgsize - 4 - $totalescapedchar);
-            }
-
-            $message = $message . '...';
+        // Delete attributes that may content private information.
+        if (!empty($eventdata->userfrom)) {
+            $extra->userfromid = $eventdata->userfrom->id;
+            $extra->userfromfullname = fullname($eventdata->userfrom);
+            unset($extra->userfrom);
         }
+        $extra->usertoid = $eventdata->userto->id;
+        unset($extra->userto);
+
+        $extra->processor       = 'moodle';
+        $extra->site            = $siteid;
+        $extra->date            = (!empty($eventdata->timecreated)) ? $eventdata->timecreated : time();
+        $extra->notification    = (!empty($eventdata->notification)) ? 1 : 0;
 
         // We are sending to message to all devices.
         $airnotifiermanager = new message_airnotifier_manager();
@@ -106,35 +93,21 @@ class message_output_airnotifier extends message_output {
                 continue;
             }
 
-            // Normalize platform name (allways in lower case).
-            $devicetoken->platform = textlib::strtolower($devicetoken->platform);
-
             // Sending the message to the device.
-            $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/notification/';
+            $serverurl = $CFG->airnotifierurl . ':' . $CFG->airnotifierport . '/api/v2/push/';
             $header = array('Accept: application/json', 'X-AN-APP-NAME: ' . $CFG->airnotifierappname,
                 'X-AN-APP-KEY: ' . $CFG->airnotifieraccesskey);
             $curl = new curl;
             $curl->setHeader($header);
+
             $params = array(
-                'alert'     => $message,
-                'date'      => (!empty($eventdata->timecreated)) ? $eventdata->timecreated : time(),
-                'site'      => $siteid,
-                'type'      => $eventdata->component . '_' . $eventdata->name,
-                'userfrom'  => (!empty($eventdata->userfrom)) ? fullname($eventdata->userfrom) : '',
                 'device'    => $devicetoken->platform,
-                'notif'     => (!empty($eventdata->notification)) ? '1' : '0',
-                'token'     => $devicetoken->pushid);
+                'token'     => $devicetoken->pushid,
+                'extra'     => $extra
+            );
 
-            // Extra parameters for Android.
-            if ($devicetoken->platform == "android") {
-                if (!empty($eventdata->notification)) {
-                    $params['title'] = get_string('newnotification', 'message_airnotifier');
-                } else {
-                    $params['title'] = get_string('newmessage', 'message_airnotifier');
-                }
-            }
-
-            $resp = $curl->post($serverurl, $params);
+            // JSON POST raw body request.
+            $resp = $curl->post($serverurl, json_encode($params));
         }
 
         return true;
