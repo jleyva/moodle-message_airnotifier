@@ -85,8 +85,8 @@ class message_output_airnotifier extends message_output {
 
         // Site name.
         $site = get_site();
-        $extra->sitefullname = $site->fullname;
-        $extra->siteshortname = $site->shortname;
+        $extra->sitefullname = format_string($site->fullname);
+        $extra->siteshortname = format_string($site->shortname);
 
         // We are sending to message to all devices.
         $airnotifiermanager = new message_airnotifier_manager();
