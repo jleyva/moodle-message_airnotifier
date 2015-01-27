@@ -23,9 +23,9 @@
  */
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version    = 2014010102;           // The current plugin version (Date: YYYYMMDDXX).
+$plugin->version    = 2014010103;           // The current plugin version (Date: YYYYMMDDXX).
 $plugin->requires   = 2012120300;             // Requires this Moodle version.
-$plugin->release    = '2.4.2';
+$plugin->release    = '2.4.3';
 $plugin->component  = 'message_airnotifier';  // Full name of the plugin (used for diagnostics).
 $plugin->maturity   = MATURITY_STABLE;
 $plugin->dependencies = array(
